@@ -1,0 +1,8 @@
+{
+   "dependencies": {
+      "@airswap/light": "^2.2.2",
+      "discord.js": "^12.5.3",
+      "dotenv": "^10.0.0",
+      "ethers": "^5.2.0"
+   }
+}
