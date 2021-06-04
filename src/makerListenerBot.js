@@ -20,7 +20,7 @@ const makerTimeouts = {};
 const makerLastTrade = {};
 
 // set timeout in minutes
-var timeout = 60;
+var timeout = 60 * 2;
 
 // set maker expiry in minutes
 var expiry = 60 * 12;
@@ -56,8 +56,20 @@ function onTimeout(signerWallet) {
 
 // makerbot response
 client.on('message', message => {
-  if (message.content === '!makerbot ping') {
-    message.channel.send('Pong.');
+  prefix = '!mmbot'
+  if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+  const args = message.content.slice(prefix.length).trim().split(/ +/);
+	const command = args.shift().toLowerCase();
+
+  if (command === 'ping') {
+    message.channel.send("Pong.");
+  } else if (command === 'timeout') {
+    timeout = args;
+    message.channel.send("Updated timeout to " + args + " minutes");
+  } else if (command === 'expiry') {
+    expiry = args;
+    message.channel.send("Updated expiry to " + args + " minutes");
   }
 });
 
