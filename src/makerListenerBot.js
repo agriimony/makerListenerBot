@@ -20,10 +20,10 @@ const makerTimeouts = {};
 const makerLastTrade = {};
 
 // set timeout in minutes
-var timeout = 1/6;
+var timeout = 60;
 
 // set maker expiry in minutes
-var expiry = 1;
+var expiry = 60 * 12;
 
 // set up client
 client.once('ready', () => {
