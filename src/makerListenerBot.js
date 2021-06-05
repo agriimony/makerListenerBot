@@ -47,15 +47,19 @@ const lightContract = new ethers.Contract(
 
 // create a function to be called when timeout
 function onTimeout(signerWallet) {
+
+  // calculate time since last trade in minutes
+  var timeSinceLastTrade = (Date.now() - makerLastTrade[signerWallet]) / 1000 / 60
+
   // message discord
-  console.log(signerWallet + " has not had a trade in the last " + Math.round(timeout) + " minutes.");
-  channel.send(signerWallet + " has not had a trade in the last " + Math.round(timeout) + " minutes.");
+  console.log(signerWallet + " has not had a trade in the last " + Math.round(timeSinceLastTrade) + " minutes.");
+  channel.send(signerWallet + " has not had a trade in the last " + Math.round(timeSinceLastTrade) + " minutes.");
 
   // check if maker timeout has expired
-  if (Date.now() - makerLastTrade[signerWallet] < expiry * 60 * 1000) {
+  if (timeSinceLastTrade < expiry) {
     // if not expired, reset timer
-     makerTimeouts[signerWallet] = setTimeout( function() { onTimeout(signerWallet) }, timeout * 60 * 1000);
-  } else {
+    makerTimeouts[signerWallet] = setTimeout( function() { onTimeout(signerWallet) },timeout * 60 * 1000);
+  } else { // else expires and inform channel
     channel.send("Maker expired: " + signerWallet + " has been inactive for more than " + expiry + " minutes")
   }
 }
@@ -77,11 +81,6 @@ client.on('message', message => {
       if (message.member.hasPermission("Administrator")){
         timeout = args;
         message.channel.send("Updated timeout to " + args + " minutes");
-        // reset timers
-        if (makerTimeouts[signerWallet]) {
-            clearTimeout(makerTimeouts[signerWallet]);
-            }
-        makerTimeouts[signerWallet] = setTimeout( function() { onTimeout(signerWallet) }, timeout * 60 * 1000);
       } else {
         message.channel.send("Only admins can change the timeout")
       }
@@ -119,6 +118,7 @@ Valid commands:
 // listen for swaps:
 lightContract.on('Swap', function (nonce, timestamp, signerWallet) {
 
+  // set last trade to now
   makerLastTrade[signerWallet] = Date.now();
 
     // check if there's an existing timeout:
