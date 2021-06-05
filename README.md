@@ -12,7 +12,9 @@ Valid commands:
 
 # How to
 Fork this on repl.it (https://replit.com/@agrimony/makerListenerBot)
+
 Add the following secrets:
-INFURA_PROJECT_ID (Create an account on infura to get this)
-DICORD_CHANNEL_ID (id of the discord channel to post to)
-DISCORD_BOT_TOKEN (token of your discord bot)
+
+- INFURA_PROJECT_ID (Create an account on infura to get this)
+- DICORD_CHANNEL_ID (id of the discord channel to post to)
+- DISCORD_BOT_TOKEN (token of your discord bot)
