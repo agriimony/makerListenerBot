@@ -10,7 +10,7 @@ const utils = require("ethers").utils;
 const LightContract = require("@airswap/light/build/contracts/Light.json");
 
 const provider = ethers.getDefaultProvider("homestead", {
-    infura: process.env.INFURA_PROJECT_ID,
+    infura: process.env['INFURA_PROJECT_ID'],
 });
 
 // make an object to hold all the timeouts
@@ -19,8 +19,11 @@ const makerTimeouts = {};
 // make an object to hold last trade timestamps
 const makerLastTrade = {};
 
+// create a webserver to keep the bot alive
+const keepAlive = require('./keepAlive.js');
+
 // set timeout in minutes
-var timeout = 60 * 2;
+var timeout = 60;
 
 // set maker expiry in minutes
 var expiry = 60 * 12;
@@ -28,11 +31,12 @@ var expiry = 60 * 12;
 // set up client
 client.once('ready', () => {
 	console.log('Ready!');
-  channel = client.channels.cache.get(process.env.DISCORD_CHANNEL_ID);
+  channel = client.channels.cache.get(process.env['DISCORD_CHANNEL_ID']);
+  console.log("listening on " + channel.name);
 });
 
 // client login
-client.login(process.env.DISCORD_BOT_TOKEN);
+client.login(process.env['DISCORD_BOT_TOKEN']);
 
 // define light contract
 const lightContract = new ethers.Contract(
@@ -51,8 +55,8 @@ function onTimeout(signerWallet) {
   if (Date.now() - makerLastTrade[signerWallet] < expiry * 60 * 1000) {
     // if not expired, reset timer
      makerTimeouts[signerWallet] = setTimeout( function() { onTimeout(signerWallet) }, timeout * 60 * 1000);
-  };
-};
+  }
+}
 
 // makerbot response
 client.on('message', message => {
@@ -65,18 +69,50 @@ client.on('message', message => {
   if (command === 'ping') {
     message.channel.send("Pong.");
   } else if (command === 'timeout') {
-    timeout = args;
-    message.channel.send("Updated timeout to " + args + " minutes");
+    if (!args.length) {
+      message.channel.send("Timeout is currently " + timeout + " minutes")
+    } else if (args.length === 1 && !isNaN(args)){
+      if (message.member.hasPermission("Administrator")){
+        timeout = args;
+        message.channel.send("Updated timeout to " + args + " minutes");
+      } else {
+        message.channel.send("Only admins can change the timeout")
+      }
+    } else {
+      message.channel.send("Please input a valid number in minutes")
+    }
+    
   } else if (command === 'expiry') {
-    expiry = args;
-    message.channel.send("Updated expiry to " + args + " minutes");
+    if (!args.length) {
+      message.channel.send("Expiry is currently " + expiry + " minutes")
+    } else if (args.length === 1 && !isNaN(args)){
+      if (message.member.hasPermission("Administrator")) {
+        expiry = args;
+        message.channel.send("Updated expiry to " + args + " minutes");
+      } else {
+        message.channel.send("Only admins can change the expiry")
+      }
+    } else {
+      message.channel.send("Please input a valid number in minutes")
+    }
+  } else {
+    message.channel.send(`
+AirSwap Maker Monitor Bot is currently monitoring swaps
+It will message the discord every ${timeout} minutes of inactivity for each maker address
+It will stop messaging the discord if a maker has gone offline for more than ${expiry} minutes
+
+Valid commands:
+!mmbot ping - pings the bot
+!mmbot timeout <timeout> - sets the threshold to message the discord if a maker has been inactive for <timeout> minutes
+!mmbot expiry <expiry> - sets the threshold to stop messaging the discord if a maker has been inactive for more than <expiry> minutes
+      `);
   }
 });
 
 // listen for swaps:
 lightContract.on('Swap', function (nonce, timestamp, signerWallet) {
 
-  makerLastTrade[signerWallet] = timestamp;
+  makerLastTrade[signerWallet] = Date.now();
 
     // check if there's an existing timeout:
     if (makerTimeouts[signerWallet]) {

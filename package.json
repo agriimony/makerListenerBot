@@ -1,0 +1,26 @@
+{
+  "name": "makerListenerBot",
+  "version": "1.0.0",
+  "description": "Listens for Maker trades on AirSwap and pings discord in the event where no trades have been emitted for a period of time",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agriimony/makerListenerBot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/agriimony/makerListenerBot/issues"
+  },
+  "homepage": "https://github.com/agriimony/makerListenerBot#readme",
+  "dependencies": {
+    "@airswap/light": "^2.2.2",
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "ethers": "^5.3.0"
+  }
+}
