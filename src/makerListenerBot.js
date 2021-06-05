@@ -55,6 +55,8 @@ function onTimeout(signerWallet) {
   if (Date.now() - makerLastTrade[signerWallet] < expiry * 60 * 1000) {
     // if not expired, reset timer
      makerTimeouts[signerWallet] = setTimeout( function() { onTimeout(signerWallet) }, timeout * 60 * 1000);
+  } else {
+    channel.send("Maker expired: " + signerWallet + " has been inactive for more than " + expiry + " minutes")
   }
 }
 
@@ -75,6 +77,11 @@ client.on('message', message => {
       if (message.member.hasPermission("Administrator")){
         timeout = args;
         message.channel.send("Updated timeout to " + args + " minutes");
+        // reset timers
+        if (makerTimeouts[signerWallet]) {
+            clearTimeout(makerTimeouts[signerWallet]);
+            }
+        makerTimeouts[signerWallet] = setTimeout( function() { onTimeout(signerWallet) }, timeout * 60 * 1000);
       } else {
         message.channel.send("Only admins can change the timeout")
       }
