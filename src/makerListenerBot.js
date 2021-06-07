@@ -23,7 +23,7 @@ const makerLastTrade = {};
 const keepAlive = require('./keepAlive.js');
 
 // set timeout in minutes
-var timeout = 60;
+var timeout = 60 * 2;
 
 // set maker expiry in minutes
 var expiry = 60 * 12;
@@ -78,7 +78,7 @@ client.on('message', message => {
     if (!args.length) {
       message.channel.send("Timeout is currently " + timeout + " minutes")
     } else if (args.length === 1 && !isNaN(args)){
-      if (message.member.hasPermission("Administrator")){
+      if (message.member.hasPermission("ADMINISTRATOR")){
         timeout = args;
         message.channel.send("Updated timeout to " + args + " minutes");
       } else {
@@ -92,7 +92,7 @@ client.on('message', message => {
     if (!args.length) {
       message.channel.send("Expiry is currently " + expiry + " minutes")
     } else if (args.length === 1 && !isNaN(args)){
-      if (message.member.hasPermission("Administrator")) {
+      if (message.member.hasPermission("ADMINISTRATOR")) {
         expiry = args;
         message.channel.send("Updated expiry to " + args + " minutes");
       } else {
