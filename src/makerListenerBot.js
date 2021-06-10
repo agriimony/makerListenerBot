@@ -19,11 +19,14 @@ const makerTimeouts = {};
 // make an object to hold last trade timestamps
 const makerLastTrade = {};
 
+// make an object to check if maker has been pinged before
+const makerPinged = {};
+
 // create a webserver to keep the bot alive
 const keepAlive = require('./keepAlive.js');
 
 // set timeout in minutes
-var timeout = 60 * 2;
+var timeout = 60 * 4;
 
 // set maker expiry in minutes
 var expiry = 60 * 12;
@@ -52,19 +55,46 @@ function onTimeout(signerWallet) {
   var timeSinceLastTrade = (Date.now() - makerLastTrade[signerWallet]) / 1000 / 60
 
   // message discord
-  console.log(signerWallet + " has not had a trade in the last " + Math.round(timeSinceLastTrade) + " minutes.");
-  channel.send(signerWallet + " has not had a trade in the last " + Math.round(timeSinceLastTrade) + " minutes.");
+  console.log(truncateEthAddress(signerWallet) + " has not had a trade in the last " + Math.round(timeSinceLastTrade) + " minutes.");
+  channel.send(truncateEthAddress(signerWallet) + " has not had a trade in the last " + Math.round(timeSinceLastTrade) + " minutes.");
+
+  // set makerPinged to True
+  makerPinged[signerWallet] = True;
 
   // check if maker timeout has expired
   if (timeSinceLastTrade < expiry) {
     // if not expired, reset timer
     makerTimeouts[signerWallet] = setTimeout( function() { onTimeout(signerWallet) },timeout * 60 * 1000);
   } else { // else expires and inform channel
-    channel.send("Maker expired: " + signerWallet + " has been inactive for more than " + expiry + " minutes")
+    channel.send("Maker expired: " + truncateEthAddress(signerWallet) + " has been inactive for more than " + expiry + " minutes")
   }
 }
 
-// makerbot response
+// listen for swaps:
+lightContract.on('Swap', function (nonce, timestamp, signerWallet) {
+
+  // set last trade to now
+  makerLastTrade[signerWallet] = Date.now();
+
+  // check if maker has been pinged before
+  if (makerPinged[signerWallet]) {
+    channel.send(":tada:" + truncateEthAddress(signerWallet) + " has resumed swaps");
+
+    //reset makerPinged
+    makerPinged[signerWallet] = False;
+  }
+
+    // check if there's an existing timeout:
+    if (makerTimeouts[signerWallet]) {
+      // clear it if there is
+      clearTimeout(makerTimeouts[signerWallet]);
+    }
+    // in all cases, set a new timeout
+    makerTimeouts[signerWallet] = setTimeout( function() { onTimeout(signerWallet) }, timeout * 60 * 1000);
+  });
+
+
+// makerbot commands
 client.on('message', message => {
   prefix = '!mmbot'
   if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -115,17 +145,3 @@ Valid commands:
   }
 });
 
-// listen for swaps:
-lightContract.on('Swap', function (nonce, timestamp, signerWallet) {
-
-  // set last trade to now
-  makerLastTrade[signerWallet] = Date.now();
-
-    // check if there's an existing timeout:
-    if (makerTimeouts[signerWallet]) {
-      // clear it if there is
-      clearTimeout(makerTimeouts[signerWallet]);
-    }
-    // in all cases, set a new timeout
-    makerTimeouts[signerWallet] = setTimeout( function() { onTimeout(signerWallet) }, timeout * 60 * 1000);
-  });
