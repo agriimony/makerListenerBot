@@ -2,6 +2,8 @@
 const dotenv = require("dotenv");
 dotenv.config();
 
+const truncateEthAddress = require("truncate-eth-address");
+
 const Discord = require("discord.js");
 const client = new Discord.Client;
 
