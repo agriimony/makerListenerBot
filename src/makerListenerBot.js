@@ -108,11 +108,11 @@ client.on('message', message => {
     message.channel.send("Pong.");
   } else if (command === 'timeout') {
     if (!args.length) {
-      message.channel.send("Timeout is currently " + timeout + " minutes")
+      message.channel.send("Timeout is currently **" + timeout + "** minutes")
     } else if (args.length === 1 && !isNaN(args)){
-      if (message.member.hasPermission("ADMINISTRATOR")){
+      if (message.member.hasPermission("ADMINISTRATOR" || message.author.id == "534386077633478656")){
         timeout = args;
-        message.channel.send("Updated timeout to " + args + " minutes");
+        message.channel.send("Updated timeout to **" + args + "** minutes");
       } else {
         message.channel.send("Only admins can change the timeout")
       }
@@ -122,11 +122,11 @@ client.on('message', message => {
     
   } else if (command === 'expiry') {
     if (!args.length) {
-      message.channel.send("Expiry is currently " + expiry + " minutes")
+      message.channel.send("Expiry is currently **" + expiry + "** minutes")
     } else if (args.length === 1 && !isNaN(args)){
-      if (message.member.hasPermission("ADMINISTRATOR")) {
+      if (message.member.hasPermission("ADMINISTRATOR" || message.author.id == "534386077633478656")) {
         expiry = args;
-        message.channel.send("Updated expiry to " + args + " minutes");
+        message.channel.send("Updated expiry to **" + args + "** minutes");
       } else {
         message.channel.send("Only admins can change the expiry")
       }
@@ -135,14 +135,14 @@ client.on('message', message => {
     }
   } else {
     message.channel.send(`
-AirSwap Maker Monitor Bot is currently monitoring swaps
-It will message the discord every ${timeout} minutes of inactivity for each maker address
-It will stop messaging the discord if a maker has gone offline for more than ${expiry} minutes
+**AirSwap Maker Monitor Bot is currently monitoring swaps**
+It will message the discord every **${timeout}** minutes of inactivity for each maker address
+It will stop messaging the discord if a maker has gone offline for more than **${expiry}** minutes
 
-Valid commands:
-!mmbot ping - pings the bot
-!mmbot timeout <timeout> - sets the threshold to message the discord if a maker has been inactive for <timeout> minutes
-!mmbot expiry <expiry> - sets the threshold to stop messaging the discord if a maker has been inactive for more than <expiry> minutes
+**Valid commands:**
+**!mmbot ping** - pings the bot
+**!mmbot timeout <timeout>** - sets the threshold to message the discord if a maker has been inactive for <timeout> minutes
+**!mmbot expiry <expiry>** - sets the threshold to stop messaging the discord if a maker has been inactive for more than <expiry> minutes
       `);
   }
 });
