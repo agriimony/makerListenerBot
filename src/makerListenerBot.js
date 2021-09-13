@@ -2,7 +2,21 @@
 const dotenv = require("dotenv");
 dotenv.config();
 
-const truncateEthAddress = require("truncate-eth-address");
+// Insert truncateEthAddress from gpxl
+// Captures 0x + 4 characters, then the last 4 characters.
+const truncateRegex = /^(0x[a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
+
+/**
+ * Truncates an ethereum address to the format 0x0000…0000
+ * @param address Full address to truncate
+ * @returns Truncated address
+ */
+const truncateEthAddress = function(address) {
+  const match = address.match(truncateRegex);
+  if (!match) return address;
+  return `${match[1]}…${match[2]}`;
+};
+
 
 const Discord = require("discord.js");
 const client = new Discord.Client;
@@ -60,8 +74,8 @@ function onTimeout(signerWallet) {
   console.log(truncateEthAddress(signerWallet) + " has not had a trade in the last " + Math.round(timeSinceLastTrade) + " minutes.");
   channel.send(truncateEthAddress(signerWallet) + " has not had a trade in the last " + Math.round(timeSinceLastTrade) + " minutes.");
 
-  // set makerPinged to True
-  makerPinged[signerWallet] = True;
+  // set makerPinged to true
+  makerPinged[signerWallet] = true;
 
   // check if maker timeout has expired
   if (timeSinceLastTrade < expiry) {
@@ -80,10 +94,10 @@ lightContract.on('Swap', function (nonce, timestamp, signerWallet) {
 
   // check if maker has been pinged before
   if (makerPinged[signerWallet]) {
-    channel.send(":tada:" + truncateEthAddress(signerWallet) + " has resumed swaps");
+    channel.send(":tada: " + truncateEthAddress(signerWallet) + " has resumed swaps");
 
     //reset makerPinged
-    makerPinged[signerWallet] = False;
+    makerPinged[signerWallet] = false;
   }
 
     // check if there's an existing timeout:
