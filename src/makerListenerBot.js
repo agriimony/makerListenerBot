@@ -124,7 +124,7 @@ client.on('message', message => {
     if (!args.length) {
       message.channel.send("Timeout is currently **" + timeout + "** minutes")
     } else if (args.length === 1 && !isNaN(args)){
-      if (message.member.hasPermission("ADMINISTRATOR" || message.author.id == "534386077633478656")){
+      if (message.member.hasPermission("ADMINISTRATOR") || message.author.id == 534386077633478656){
         timeout = args;
         message.channel.send("Updated timeout to **" + args + "** minutes");
       } else {
@@ -138,7 +138,7 @@ client.on('message', message => {
     if (!args.length) {
       message.channel.send("Expiry is currently **" + expiry + "** minutes")
     } else if (args.length === 1 && !isNaN(args)){
-      if (message.member.hasPermission("ADMINISTRATOR" || message.author.id == "534386077633478656")) {
+      if (message.member.hasPermission("ADMINISTRATOR") || message.author.id == 534386077633478656) {
         expiry = args;
         message.channel.send("Updated expiry to **" + args + "** minutes");
       } else {
