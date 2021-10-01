@@ -42,10 +42,10 @@ const makerPinged = {};
 const keepAlive = require('./keepAlive.js');
 
 // set timeout in minutes
-var timeout = 60 * 4;
+var timeout = 60 * 12;
 
 // set maker expiry in minutes
-var expiry = 60 * 12;
+var expiry = 60 * 24;
 
 // set up client
 client.once('ready', () => {
